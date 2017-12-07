@@ -217,7 +217,7 @@ function watch() {
   gulp.watch(`${paths.src}/assets/vectors`, images);
   gulp.watch(`${paths.src}/**/*.js`, scripts);
   gulp.watch(`${paths.src}/**/*.css`, styles);
-  // Try to add tokens watching. Not working :(
+  // Try to add tokens watching. Not working !
   gulp.watch(`${paths.src}/tokens/*.json`, styles);
 }
 
