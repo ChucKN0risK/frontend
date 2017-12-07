@@ -3,7 +3,7 @@
 // --------------------------------------------------------
 
 // Utils
-const fs = require('fs');
+// const fs = require('fs');
 const del = require('del');
 const gulp = require('gulp');
 const util = require('gulp-util');
@@ -11,21 +11,45 @@ const util = require('gulp-util');
 // CSS
 const postcss = require('gulp-postcss');
 const apply = require('postcss-apply');
-const assets = require('postcss-assets');
 const autoprefixer = require('autoprefixer');
-const calc = require('postcss-calc');
 const colorFunction = require('postcss-color-function');
-const customMedia = require('postcss-custom-media');
-const importer = require('postcss-easy-import');
-const mapper = require('postcss-map');
-const mediaMinMax = require('postcss-media-minmax');
 const nano = require('cssnano');
-const nested = require('postcss-nested');
 const responsiveType = require('postcss-responsive-type');
+
+// A enlever ? J'ai l'impression qu'il n'est pas utilisé
+const assets = require('postcss-assets');
+
+// Pas compris l'intérêt du plugin sachant que calc est supporté
+const calc = require('postcss-calc');
+
+// PostCSS plugin to transform W3C CSS Custom Media Queries to more compatible CSS
+// Usage :
+// @custom-media --upto-xsmall-screen screen and (width < map(breakpoints, xsmall));
+// @media (--upto-xsmall-screen) {
+//  /* styles for small viewport */
+// }
+const customMedia = require('postcss-custom-media');
+
+// PostCSS plugin to inline @import rules content with extra features
+const importer = require('postcss-easy-import');
+
+// Plugin enabling configuration maps
+// Utilisé pour insérer les données des design tokens dans le css
+const mapper = require('postcss-map');
+
+// Plugin allowig media-queries min/max query shorthand
+// Input: @media (width >= 500px)
+// Output: @media (min-width: 500px)
+const mediaMinMax = require('postcss-media-minmax');
+
+// gives us a functionality of unwrapping nested rules like how Sass does it
+const nested = require('postcss-nested');
+
+// for including Sass-like variables
 const simpleVars = require('postcss-simple-vars');
 
 // Misc
-const ghPages = require('gulp-gh-pages');
+// const ghPages = require('gulp-gh-pages');
 const imagemin = require('gulp-imagemin');
 const sourcemaps = require('gulp-sourcemaps');
 
@@ -33,7 +57,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const rollup = require('./etc/gulp/rollup');
 
 // Fractal
-const pkg = require('./package.json');
+// const pkg = require('./package.json');
 const fractal = require('./fractal.js');
 
 const logger = fractal.cli.console;
@@ -98,8 +122,10 @@ function build() {
 }
 
 // Serve dynamic site
+// https://fractal.build/guide/web/server
 function serve() {
   const server = fractal.web.server({
+    // Use BrowserSync
     sync: true,
     syncOptions: {
       https: true
@@ -119,17 +145,17 @@ function clean() {
 }
 
 // Deploy to GitHub pages
-function deploy() {
-  // Generate CNAME file from `homepage` value in package.json
-  const cname = pkg.homepage.replace(/.*?:\/\//g, '');
-  fs.writeFileSync(`${paths.build}/CNAME`, cname);
-
-  // Push contents of build folder to `gh-pages` branch
-  return gulp.src(`${paths.build}/**/*`)
-    .pipe(ghPages({
-      force: true
-    }));
-}
+// function deploy() {
+//   // Generate CNAME file from `homepage` value in package.json
+//   const cname = pkg.homepage.replace(/.*?:\/\//g, '');
+//   fs.writeFileSync(`${paths.build}/CNAME`, cname);
+//
+//   // Push contents of build folder to `gh-pages` branch
+//   return gulp.src(`${paths.build}/**/*`)
+//     .pipe(ghPages({
+//       force: true
+//     }));
+// }
 
 // Meta
 function meta() {
@@ -191,6 +217,8 @@ function watch() {
   gulp.watch(`${paths.src}/assets/vectors`, images);
   gulp.watch(`${paths.src}/**/*.js`, scripts);
   gulp.watch(`${paths.src}/**/*.css`, styles);
+  // Try to add tokens watching. Not working :(
+  gulp.watch(`${paths.src}/tokens/*.json`, styles);
 }
 
 // Task sets
@@ -199,4 +227,4 @@ const compile = gulp.series(clean, gulp.parallel(meta, icons, images, vectors, s
 gulp.task('start', gulp.series(compile, serve));
 gulp.task('build', gulp.series(compile, build));
 gulp.task('dev', gulp.series(compile, watch));
-gulp.task('publish', gulp.series(build, deploy));
+// gulp.task('publish', gulp.series(build, deploy));
